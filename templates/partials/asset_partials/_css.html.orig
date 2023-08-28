@@ -1,0 +1,17 @@
+{# {% includeCssFile "/assets/css/general_use.css" %}
+{% includeCssFile "/assets/css/bootstrap-theme.css" %}
+{% includeCssFile "/assets/css/bootstrap-theme.css.map" %}
+{% includeCssFile "/assets/css/bootstrap-theme.min.css" %}
+{% includeCssFile "/assets/css/bootstrap-theme.min.css.map" %}
+{% includeCssFile "/assets/css/bootstrap.css" %}
+{% includeCssFile "/assets/css/bootstrap.css.map" %}
+{% includeCssFile "/assets/css/bootstrap.min.css" %}
+{% includeCssFile "/assets/css/bootstrap.min.css.map" %}
+{# {% includeCssFile "/assets/fonts/bootstrap.glyphicons-halflings-regular.eot" %}
+{% includeCssFile "/assets/fonts/glyphicons-halflings-regular.svg" %}
+{% includeCssFile "/assets/fonts/glyphicons-halflings-regular.ttf" %}
+{% includeCssFile "/assets/fonts/glyphicons-halflings-regular.woff" %}
+{% includeCssFile "/assets/fonts/glyphicons-halflings-regular.woff2" %} #}
+
+{% includeCssFile "/lib/css/slab-ext-header.css" %}
+{% includeCssFile "/lib/css/style.css" %}

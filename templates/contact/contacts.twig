@@ -1,0 +1,15 @@
+{% extends "_layouts/base" %}
+
+{% block body %}
+
+  {% include '_layouts/_header.twig' %}
+
+  <main role="main" class="h-full p-8">
+    <div class="container">
+      {% include 'contact/contact-form.twig' %}
+    </div>
+  </main>
+
+  {% include '_layouts/_footer.twig' %}
+
+{% endblock %}

@@ -1,0 +1,41 @@
+defaultPlacement: beginning
+fieldLayouts:
+  1dce7c0c-5558-44a7-b3e3-22c21182c59d:
+    tabs:
+      -
+        elements:
+          -
+            autocapitalize: true
+            autocomplete: false
+            autocorrect: true
+            class: null
+            disabled: false
+            id: null
+            instructions: null
+            label: null
+            max: null
+            min: null
+            name: null
+            orientation: null
+            placeholder: null
+            readonly: false
+            requirable: false
+            size: null
+            step: null
+            tip: null
+            title: null
+            type: craft\fieldlayoutelements\TitleField
+            warning: null
+            width: 100
+        name: Content
+        sortOrder: 1
+handle: men
+name: Men
+siteSettings:
+  37c68312-2895-4e9e-97c5-c63dcf928e36: # craft367
+    hasUrls: true
+    template: null
+    uriFormat: 'men/{slug}'
+structure:
+  maxLevels: 3
+  uid: 8ceab9f2-56c2-4333-aedb-4cba12abb212

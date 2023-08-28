@@ -1,0 +1,26 @@
+fieldLayouts:
+  db0f824b-6636-4264-9369-e6e66257d932:
+    tabs:
+      -
+        elements:
+          -
+            heading: 'Page Title'
+            type: craft\fieldlayoutelements\Heading
+          -
+            template: null
+            type: craft\fieldlayoutelements\Template
+            width: 100
+          -
+            fieldUid: c662ae26-9fa3-4bfa-b5d8-1f7d740198fe # Homepage content
+            instructions: null
+            label: null
+            required: false
+            tip: null
+            type: craft\fieldlayoutelements\CustomField
+            warning: null
+            width: 100
+        name: 'Globle Entry'
+        sortOrder: 1
+handle: entries
+name: Entries
+sortOrder: 1

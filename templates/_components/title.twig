@@ -1,0 +1,6 @@
+{% set seo = getSeoField() %}
+	{% if seo is null or seo.title == '' %}
+{% set seo = craft.seo.custom(siteName, '', false) %}
+{% endif -%}<h2 class="text-3xl md:text-5xl">
+  {% if title is defined %}{{ title }} - {% endif %}
+</h2>

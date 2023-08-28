@@ -1,0 +1,22 @@
+fieldLayouts:
+  99c2fc23-4aab-4d4a-9034-e3da08dc4876:
+    tabs:
+      -
+        elements:
+          -
+            heading: null
+            type: craft\fieldlayoutelements\Heading
+          -
+            fieldUid: c662ae26-9fa3-4bfa-b5d8-1f7d740198fe # Homepage content
+            instructions: 'this is home custom page'
+            label: 'this is home custom page'
+            required: '1'
+            tip: null
+            type: craft\fieldlayoutelements\CustomField
+            warning: null
+            width: 50
+        name: Home
+        sortOrder: 1
+handle: homePage
+name: 'Home page'
+sortOrder: 2

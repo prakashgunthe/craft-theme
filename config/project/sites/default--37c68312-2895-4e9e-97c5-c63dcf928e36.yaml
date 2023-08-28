@@ -1,0 +1,9 @@
+baseUrl: $PRIMARY_SITE_URL
+enabled: true
+handle: default
+hasUrls: true
+language: en-US
+name: craft367
+primary: true
+siteGroup: 4cfdc84b-6dc4-4fa1-9ef0-192a0c382a0e # craft367
+sortOrder: 1
