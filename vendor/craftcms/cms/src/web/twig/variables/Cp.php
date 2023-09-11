@@ -8,6 +8,7 @@
 namespace craft\web\twig\variables;
 
 use Craft;
+use craft\base\FsInterface;
 use craft\base\UtilityInterface;
 use craft\enums\LicenseKeyStatus;
 use craft\errors\InvalidPluginException;
@@ -19,8 +20,12 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Cp as CpHelper;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
+use craft\models\Site;
+use craft\models\Volume;
 use craft\web\twig\TemplateLoaderException;
 use DateTime;
+use DateTimeZone;
 use RecursiveCallbackFilterIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -62,7 +67,7 @@ class Cp extends Component
      * @see prepFormActions()
      * @since 3.6.10
      */
-    const EVENT_REGISTER_FORM_ACTIONS = 'registerFormActions';
+    public const EVENT_REGISTER_FORM_ACTIONS = 'registerFormActions';
 
     /**
      * @event RegisterCpNavItemsEvent The event that is triggered when registering control panel nav items.
@@ -101,7 +106,7 @@ class Cp extends Component
      * If a subnav is defined, subpages can specify which subnav item should be selected by defining a `selectedSubnavItem` variable that is set to
      * the selected item’s ID (its key in the `subnav` array).
      */
-    const EVENT_REGISTER_CP_NAV_ITEMS = 'registerCpNavItems';
+    public const EVENT_REGISTER_CP_NAV_ITEMS = 'registerCpNavItems';
 
     /**
      * @event RegisterCpSettingsEvent The event that is triggered when registering links that should render on the Settings page in the control panel.
@@ -135,14 +140,25 @@ class Cp extends Component
      *
      * @since 3.1.0
      */
-    const EVENT_REGISTER_CP_SETTINGS = 'registerCpSettings';
+    public const EVENT_REGISTER_CP_SETTINGS = 'registerCpSettings';
+
+    /**
+     * Returns the site the control panel is currently working with, via a `site` query string param if sent.
+     *
+     * @return Site|null The site, or `null` if the user doesn’t have permission to edit any sites.
+     * @since 4.0.4
+     */
+    public function getRequestedSite(): ?Site
+    {
+        return CpHelper::requestedSite();
+    }
 
     /**
      * Returns the Craft Console account URL.
      *
      * @return string
      */
-    public function craftIdAccountUrl()
+    public function craftIdAccountUrl(): string
     {
         return Craft::$app->getPluginStore()->craftIdEndpoint . '/account';
     }
@@ -336,7 +352,7 @@ class Cp extends Component
         $foundSelectedItem = false;
 
         foreach ($navItems as &$item) {
-            if (!$foundSelectedItem && ($item['url'] == $path || StringHelper::startsWith($path, $item['url'] . '/'))) {
+            if (!$foundSelectedItem && ($item['url'] == $path || str_starts_with($path, $item['url'] . '/'))) {
                 $item['sel'] = true;
                 if (!isset($item['subnav'])) {
                     $item['subnav'] = false;
@@ -415,10 +431,6 @@ class Cp extends Component
             'iconMask' => '@appicons/newspaper.svg',
             'label' => Craft::t('app', 'Sections'),
         ];
-        $settings[$label]['assets'] = [
-            'iconMask' => '@appicons/photo.svg',
-            'label' => Craft::t('app', 'Assets'),
-        ];
         $settings[$label]['globals'] = [
             'iconMask' => '@appicons/globe.svg',
             'label' => Craft::t('app', 'Globals'),
@@ -430,6 +442,18 @@ class Cp extends Component
         $settings[$label]['tags'] = [
             'iconMask' => '@appicons/tags.svg',
             'label' => Craft::t('app', 'Tags'),
+        ];
+
+        $label = Craft::t('app', 'Media');
+
+        $settings[$label]['filesystems'] = [
+            'iconMask' => '@appicons/folder-open.svg',
+            'label' => Craft::t('app', 'Filesystems'),
+        ];
+
+        $settings[$label]['assets'] = [
+            'iconMask' => '@appicons/photo.svg',
+            'label' => Craft::t('app', 'Assets'),
         ];
 
         $label = Craft::t('app', 'Plugins');
@@ -480,7 +504,7 @@ class Cp extends Component
      * Returns info about the active trials.
      *
      * @return array|null
-     * @since 3.8.15
+     * @since 4.4.15
      */
     public function trialInfo(): ?array
     {
@@ -553,6 +577,7 @@ class Cp extends Component
                     $hasCraftTrial = true;
                 } else {
                     $trialPluginCount++;
+                    /** @phpstan-ignore-next-line */
                     $trialPluginNames[] = $pluginName;
                 }
             }
@@ -580,20 +605,28 @@ class Cp extends Component
      *
      * @param bool $includeAliases Whether aliases should be included in the list
      * (only enable this if the setting defines a URL or file path)
-     * @return string[]
+     * @param callable|null $filter A function that returns whether a given value should be included
+     * @phpstan-param callable(scalar):bool|null $filter
+     * @return array[]
+     * @phpstan-return array{label:string,data:array}[]
      * @since 3.1.0
      */
-    public function getEnvSuggestions(bool $includeAliases = false): array
+    public function getEnvSuggestions(bool $includeAliases = false, ?callable $filter = null): array
     {
         $suggestions = [];
         $security = Craft::$app->getSecurity();
 
         $envSuggestions = [];
         foreach (array_keys($_SERVER) as $var) {
-            if (is_string($var) && !StringHelper::startsWith($var, 'HTTP_') && is_string($env = App::env($var))) {
+            if (
+                is_string($var) &&
+                !str_starts_with($var, 'HTTP_') &&
+                is_scalar($env = App::env($var)) &&
+                (!$filter || $filter($env))
+            ) {
                 $envSuggestions[] = [
                     'name' => '$' . $var,
-                    'hint' => $security->redactIfSensitive($var, Craft::getAlias($env, false)),
+                    'hint' => $security->redactIfSensitive($var, Craft::getAlias((string)$env, false)),
                 ];
             }
         }
@@ -607,13 +640,16 @@ class Cp extends Component
             $aliasSuggestions = [];
             foreach (Craft::$aliases as $alias => $path) {
                 if (is_array($path)) {
-                    if (isset($path[$alias])) {
+                    if (
+                        isset($path[$alias]) &&
+                        (!$filter || $filter($path[$alias]))
+                    ) {
                         $aliasSuggestions[] = [
                             'name' => $alias,
                             'hint' => $path[$alias],
                         ];
                     }
-                } else {
+                } elseif (!$filter || $filter($path)) {
                     $aliasSuggestions[] = [
                         'name' => $alias,
                         'hint' => $path,
@@ -640,7 +676,11 @@ class Cp extends Component
     public function getEnvOptions(?array $allowedValues = null): array
     {
         if ($allowedValues !== null) {
-            $allowedValues = array_flip($allowedValues);
+            if (empty($allowedValues)) {
+                return [];
+            }
+
+            $allowedValues = array_flip(array_filter($allowedValues));
         }
 
         $options = [];
@@ -658,13 +698,11 @@ class Cp extends Component
                     $data['hint'] = $security->redactIfSensitive($var, Craft::getAlias($value, false));
                 }
 
-                $options[] = [
+                $options[] = array_filter([
                     'label' => "$$var",
                     'value' => "$$var",
-                    'data' => [
-                        'data' => !empty($data) ? $data : false,
-                    ],
-                ];
+                    'data' => !empty($data) ? $data : null,
+                ]);
             }
         }
 
@@ -682,19 +720,20 @@ class Cp extends Component
         $options = [];
 
         foreach (array_keys($_SERVER) as $var) {
-            if (
-                is_string($var) &&
-                is_string($value = App::env($var)) &&
-                $value !== '' &&
-                ($boolean = filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE)) !== null
-            ) {
+            if (!is_string($var)) {
+                continue;
+            }
+            $value = App::env($var);
+            if ($value === null || $value === '') {
+                continue;
+            }
+            $booleanValue = is_bool($value) ? $value : filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
+            if ($booleanValue !== null) {
                 $options[] = [
                     'label' => "$$var",
                     'value' => "$$var",
                     'data' => [
-                        'data' => [
-                            'boolean' => $boolean,
-                        ],
+                        'boolean' => $booleanValue,
                     ],
                 ];
             }
@@ -734,8 +773,8 @@ class Cp extends Component
         $offsets = [];
         $timezoneIds = [];
 
-        foreach (\DateTimeZone::listIdentifiers() as $timezoneId) {
-            $timezone = new \DateTimeZone($timezoneId);
+        foreach (DateTimeZone::listIdentifiers() as $timezoneId) {
+            $timezone = new DateTimeZone($timezoneId);
             $transition = $timezone->getTransitions($utc->getTimestamp(), $utc->getTimestamp());
             $abbr = $transition[0]['abbr'];
 
@@ -764,16 +803,50 @@ class Cp extends Component
 
             $offsets[] = $offset;
             $timezoneIds[] = $timezoneId;
-            $options[] = [
+            $options[] = array_filter([
                 'value' => $timezoneId,
                 'label' => $label,
-                'data' => [
-                    'data' => !empty($data) ? $data : false,
-                ],
-            ];
+                'data' => !empty($data) ? $data : null,
+            ]);
         }
 
         array_multisort($offsets, SORT_ASC, SORT_NUMERIC, $timezoneIds, $options);
+
+        return $options;
+    }
+
+    /**
+     * Returns all options for a filesystem input.
+     *
+     * @return array
+     * @since 4.0.0
+     */
+    public function getFsOptions(): array
+    {
+        $options = array_map(fn(FsInterface $fs) => [
+            'label' => $fs->name,
+            'value' => $fs->handle,
+        ], Craft::$app->getFs()->getAllFilesystems());
+
+        ArrayHelper::multisort($options, 'label');
+
+        return $options;
+    }
+
+    /**
+     * Returns all options for a volume input.
+     *
+     * @return array
+     * @since 4.0.0
+     */
+    public function getVolumeOptions(): array
+    {
+        $options = array_map(fn(Volume $volume) => [
+            'label' => $volume->name,
+            'value' => $volume->id,
+        ], Craft::$app->getVolumes()->getAllVolumes());
+
+        ArrayHelper::multisort($options, 'label');
 
         return $options;
     }
@@ -785,7 +858,7 @@ class Cp extends Component
      * @return array|null
      * @since 3.1.9
      */
-    public function getAsciiCharMap(string $language)
+    public function getAsciiCharMap(string $language): ?array
     {
         if ($language === Craft::$app->language) {
             return null;
@@ -797,7 +870,8 @@ class Cp extends Component
     /**
      * Returns the available template path suggestions for template inputs.
      *
-     * @return string[]
+     * @return array[]
+     * @phpstan-return array{label:string,data:array}[]
      * @since 3.1.0
      */
     public function getTemplateSuggestions(): array
@@ -854,7 +928,7 @@ class Cp extends Component
 
                     // Is it in a site template directory?
                     foreach ($sites as $handle => $name) {
-                        if (strpos($template, $handle . DIRECTORY_SEPARATOR) === 0) {
+                        if (str_starts_with($template, $handle . DIRECTORY_SEPARATOR)) {
                             $hint = $name;
                             $template = substr($template, strlen($handle) + 1);
                             break;
@@ -919,5 +993,18 @@ class Cp extends Component
     public function field(string $input, array $config = []): string
     {
         return CpHelper::fieldHtml($input, $config);
+    }
+
+    /**
+     * Renders a field layout designer’s HTML.
+     *
+     * @param FieldLayout $fieldLayout
+     * @param array $config
+     * @return string
+     * @since 4.0.0
+     */
+    public function fieldLayoutDesigner(FieldLayout $fieldLayout, array $config = []): string
+    {
+        return CpHelper::fieldLayoutDesignerHtml($fieldLayout, $config);
     }
 }

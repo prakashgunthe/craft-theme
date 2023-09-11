@@ -13,7 +13,7 @@ use HTMLPurifier_AttrDef_URI;
  * Class VideoEmbedUrlDef
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.7.66
+ * @since 4.3.9
  */
 class VideoEmbedUrlDef extends HTMLPurifier_AttrDef_URI
 {

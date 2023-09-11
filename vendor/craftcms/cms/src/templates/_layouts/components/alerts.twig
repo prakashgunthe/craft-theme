@@ -10,9 +10,9 @@
       style: {
         'display': 'block',
         'position': 'relative',
-        'background-color': '#ffe3e3',
-        'border-left': '6px solid #cf1124',
-        'color': '#cf1124',
+        'background-color': 'var(--red-050)',
+        'border-left': '6px solid var(--error-color)',
+        'color': 'var(--error-color)',
       },
     } only %}
       {% block content %}
@@ -43,6 +43,8 @@
   {% endif %}
 {% else %}
   {% js %}
-    Craft.cp.fetchAlerts();
+    Craft.cp.fetchAlerts().then(alerts => {
+      Craft.cp.displayAlerts(alerts);
+    });
   {% endjs %}
 {% endif %}

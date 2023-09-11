@@ -1,0 +1,8 @@
+baseUrl: $PRIMARY_SITE_URL
+handle: default
+hasUrls: true
+language: en-US
+name: craf440
+primary: true
+siteGroup: ea2373df-98be-423b-91cb-d66751090f2f # craf440
+sortOrder: 1

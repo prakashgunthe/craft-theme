@@ -15,7 +15,7 @@ use craft\elements\Asset;
  * MoveAssets represents a Move asset action.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.8.0
+ * @since 4.4.0
  */
 class MoveAssets extends ElementAction
 {
@@ -30,7 +30,7 @@ class MoveAssets extends ElementAction
     /**
      * @inheritdoc
      */
-    public function getTriggerHtml()
+    public function getTriggerHtml(): ?string
     {
         Craft::$app->getView()->registerJsWithVars(function($actionClass) {
             return <<<JS

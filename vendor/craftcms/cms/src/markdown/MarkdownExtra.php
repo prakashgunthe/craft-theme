@@ -14,7 +14,7 @@ use cebe\markdown\MarkdownExtra as BaseMarkdownExtra;
  * Markdown parser
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.8.2
+ * @since 4.4.2
  */
 class MarkdownExtra extends BaseMarkdownExtra
 {

@@ -9,14 +9,15 @@ namespace craft\models;
 
 use Craft;
 use craft\base\Model;
-use craft\base\VolumeInterface;
 use craft\helpers\Html;
-use craft\volumes\Temp;
 use yii\base\InvalidConfigException;
 
 /**
  * The VolumeFolder model class.
  *
+ * @property-read Volume $volume
+ * @property-read VolumeFolder|null $parent
+ * @property VolumeFolder[] $children
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0.0
  */
@@ -25,42 +26,42 @@ class VolumeFolder extends Model
     /**
      * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var int|string|null Parent ID
      */
-    public $parentId;
+    public string|int|null $parentId = null;
 
     /**
      * @var int|null Volume ID
      */
-    public $volumeId;
+    public ?int $volumeId = null;
 
     /**
      * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
      * @var string|null Path
      */
-    public $path;
+    public ?string $path = null;
 
     /**
      * @var string|null UID
      */
-    public $uid;
+    public ?string $uid = null;
 
     /**
      * @var VolumeFolder[]|null
      */
-    private $_children;
+    private ?array $_children = null;
 
     /**
-     * @var bool|null
+     * @var bool
      */
-    private $_hasChildren;
+    private bool $_hasChildren;
 
     /**
      * @inheritdoc
@@ -83,13 +84,13 @@ class VolumeFolder extends Model
     }
 
     /**
-     * @return VolumeInterface
+     * @return Volume
      * @throws InvalidConfigException if [[volumeId]] is invalid
      */
-    public function getVolume(): VolumeInterface
+    public function getVolume(): Volume
     {
-        if ($this->volumeId === null) {
-            return new Temp();
+        if (!isset($this->volumeId)) {
+            return Craft::$app->getVolumes()->getTemporaryVolume();
         }
 
         if (($volume = Craft::$app->getVolumes()->getVolumeById($this->volumeId)) === null) {
@@ -103,7 +104,7 @@ class VolumeFolder extends Model
      * Returns info about the folder for an element index’s source path configuration.
      *
      * @return array|null
-     * @since 3.8.0
+     * @since 4.4.0
      */
     public function getSourcePathInfo(): ?array
     {
@@ -113,10 +114,10 @@ class VolumeFolder extends Model
 
         $volume = $this->getVolume();
         $userSession = Craft::$app->getUser();
-        $canView = $userSession->checkPermission("viewVolume:$volume->uid");
-        $canCreate = $userSession->checkPermission("createFoldersInVolume:$volume->uid");
-        $canDelete = $userSession->checkPermission("deletePeerFilesInVolume:$volume->uid");
-        $canMove = $canDelete && $userSession->checkPermission("editPeerFilesInVolume:$volume->uid");
+        $canView = $userSession->checkPermission("viewAssets:$volume->uid");
+        $canCreate = $userSession->checkPermission("createFolders:$volume->uid");
+        $canDelete = $userSession->checkPermission("deletePeerAssets:$volume->uid");
+        $canMove = $canDelete && $userSession->checkPermission("savePeerAssets:$volume->uid");
 
         $info = [
             'uri' => sprintf('assets/%s%s', $volume->handle, $this->path ? sprintf('/%s', trim($this->path, '/')) : ''),
@@ -130,7 +131,7 @@ class VolumeFolder extends Model
         // Is this a root folder?
         if (!$this->parentId) {
             $info += [
-                'key' => "folder:$this->uid",
+                'key' => "volume:$volume->uid",
                 'icon' => 'home',
                 'label' => Craft::t('app', '{volume} root', [
                     'volume' => Html::encode(Craft::t('site', $volume->name)),
@@ -138,7 +139,7 @@ class VolumeFolder extends Model
                 'handle' => $volume->handle,
             ];
         } else {
-            $canRename = $canCreate & $userSession->checkPermission("deleteFilesAndFoldersInVolume:$volume->uid");
+            $canRename = $canCreate & $userSession->checkPermission("deleteAssets:$volume->uid");
 
             $info += [
                 'key' => "folder:$this->uid",
@@ -159,7 +160,7 @@ class VolumeFolder extends Model
      * Returns whether the folder has any child folders.
      *
      * @return bool
-     * @since 3.8.0
+     * @since 4.4.0
      */
     public function getHasChildren(): bool
     {
@@ -178,7 +179,7 @@ class VolumeFolder extends Model
      * Sets whether the folder has any child folders.
      *
      * @param bool $value
-     * @since 3.8.0
+     * @since 4.4.0
      */
     public function setHasChildren(bool $value)
     {
@@ -190,7 +191,7 @@ class VolumeFolder extends Model
      *
      * @param VolumeFolder[] $children
      */
-    public function setChildren(array $children)
+    public function setChildren(array $children): void
     {
         $this->_children = $children;
     }
@@ -202,7 +203,7 @@ class VolumeFolder extends Model
      */
     public function getChildren(): array
     {
-        if ($this->_children !== null) {
+        if (isset($this->_children)) {
             return $this->_children;
         }
 
@@ -212,7 +213,7 @@ class VolumeFolder extends Model
     /**
      * @return VolumeFolder|null
      */
-    public function getParent()
+    public function getParent(): ?VolumeFolder
     {
         if (!$this->parentId) {
             return null;
@@ -226,9 +227,9 @@ class VolumeFolder extends Model
      *
      * @param VolumeFolder $folder
      */
-    public function addChild(VolumeFolder $folder)
+    public function addChild(VolumeFolder $folder): void
     {
-        if ($this->_children === null) {
+        if (!isset($this->_children)) {
             $this->_children = [];
         }
 

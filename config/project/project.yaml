@@ -1,120 +1,18 @@
-dateModified: 1693207259
+dateModified: 1692944707
 email:
   fromEmail: prakash.gunthe@gmail.com
-  fromName: craft367
+  fromName: craf440
   transportType: craft\mail\transportadapters\Sendmail
 meta:
   __names__:
-    4cfdc84b-6dc4-4fa1-9ef0-192a0c382a0e: craft367 # craft367
-    37c68312-2895-4e9e-97c5-c63dcf928e36: craft367 # craft367
-    71f9f246-11fc-466c-9175-c06fab11604d: 'Home page' # Home page
-    75b3d6dd-06d7-47b1-8576-539d2ad79767: 'Public Schema' # Public Schema
-    7578fc3a-5bdd-4872-af29-f1fc7dbf253b: Common # Common
-    c9a45e28-fb43-42cb-8ff1-082a7742e269: Men # Men
-    c662ae26-9fa3-4bfa-b5d8-1f7d740198fe: 'Homepage content' # Homepage content
-    d65f06b3-a04d-4128-800c-d0285487300f: Entries # Entries
-    ff008216-8811-4ac5-b777-225a2ff5e860: Women # Women
-plugins:
-  architect:
-    edition: standard
-    enabled: true
-    schemaVersion: 2.0.0
-  contact-form:
-    edition: standard
-    enabled: true
-    schemaVersion: 1.0.0
-    settings:
-      allowAttachments: '1'
-      allowedMessageFields: null
-      prependSender: 'On behalf of'
-      prependSubject: 'New message from craft367'
-      successFlashMessage: 'Your message has been sent.'
-      toEmail: prakaksh.gunthe@gmail.com
-  contact-form-extensions:
-    edition: standard
-    enabled: true
-    schemaVersion: 1.0.1
-    settings:
-      confirmationSubject: 'this is testing emails from Prakash'
-      confirmationTemplate: _emails/contact/confirmation
-      enableConfirmationEmail: '1'
-      enableDatabase: '1'
-      enableRecaptchaOverride: ''
-      enableTemplateOverwrite: '1'
-      notificationTemplate: _emails/contact/notification
-      recaptcha: ''
-      recaptchaDataBadge: bottomright
-      recaptchaDebug: ''
-      recaptchaHideBadge: ''
-      recaptchaSecretKey: ''
-      recaptchaSiteKey: ''
-      recaptchaThreshold: '0.5'
-      recaptchaTimeout: '5'
-      recaptchaUrl: ''
-      recaptchaVerificationUrl: ''
-      recaptchaVersion: ''
-  element-api:
-    edition: standard
-    enabled: true
-    schemaVersion: 1.0.0
-  redactor:
-    edition: standard
-    enabled: true
-    schemaVersion: 2.3.0
-  seo:
-    edition: standard
-    enabled: true
-    schemaVersion: 3.2.0
-    settings:
-      description: ''
-      facebookAppId: test
-      metaTemplate: ''
-      removeAlternateUrls: ''
-      robots:
-        - ''
-        - ''
-        - ''
-        - ''
-        - ''
-        - ''
-      robotsTxt: "{# Sitemap URL #}\r\nSitemap: {{ url(seo.sitemapName ~ '.xml') }}\r\n\r\n{# Disallows #}\r\n{% if craft.app.config.env != 'production' %}\r\n\r\n{# Disallow access to everything when NOT in production #}\r\nUser-agent: *\r\nDisallow: /\r\n\r\n{% else %}\r\n\r\n{# Disallow access to cpresources/ when live #}\r\nUser-agent: *\r\nDisallow: /cpresources/\r\n\r\n{% endif %}"
-      sitemapLimit: '1000'
-      sitemapName: sitemap
-      socialImage: null
-      title:
-        -
-          __assoc__:
-            -
-              - key
-              - '1'
-            -
-              - locked
-              - '0'
-            -
-              - template
-              - '{title}'
-        -
-          __assoc__:
-            -
-              - key
-              - '2'
-            -
-              - locked
-              - '1'
-            -
-              - template
-              - ' - {{ siteName }}'
-      titleSuffix: null
-      twitterHandle: test
-  typedlinkfield:
-    edition: standard
-    enabled: true
-    schemaVersion: 1.0.0
+    36e62643-3f9f-4de5-ac3c-dbdccb484338: Common # Common
+    e8c5867c-4776-4a60-bc88-8196c4660f8e: craf440 # craf440
+    ea2373df-98be-423b-91cb-d66751090f2f: craf440 # craf440
 system:
   edition: solo
   live: true
-  name: craft367
-  schemaVersion: 3.8.0.1
+  name: craf440
+  schemaVersion: 4.5.0.3
   timeZone: America/Los_Angeles
 users:
   allowPublicRegistration: false

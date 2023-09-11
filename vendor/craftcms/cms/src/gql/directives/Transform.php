@@ -17,6 +17,7 @@ use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\Directive as GqlDirective;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\ResolveInfo;
+use Illuminate\Support\Collection;
 
 /**
  * Class Transform
@@ -42,20 +43,16 @@ class Transform extends Directive
      */
     public static function create(): GqlDirective
     {
-        if ($type = GqlEntityRegistry::getEntity(self::name())) {
-            return $type;
-        }
+        $typeName = static::name();
 
-        $type = GqlEntityRegistry::createEntity(static::name(), new self([
-            'name' => static::name(),
+        return GqlEntityRegistry::getOrCreate(static::name(), fn() => new self([
+            'name' => $typeName,
             'locations' => [
                 DirectiveLocation::FIELD,
             ],
             'args' => TransformArguments::getArguments(),
-            'description' => 'Returns a URL for an [asset transform](https://craftcms.com/docs/3.x/image-transforms.html). Accepts the same arguments you would use for a transform in Craft and adds the `immediately` argument.',
+            'description' => 'Returns a URL for an [asset transform](https://craftcms.com/docs/4.x/image-transforms.html). Accepts the same arguments you would use for a transform in Craft.',
         ]));
-
-        return $type;
     }
 
     /**
@@ -69,7 +66,7 @@ class Transform extends Directive
     /**
      * @inheritdoc
      */
-    public static function apply($source, $value, array $arguments, ResolveInfo $resolveInfo)
+    public static function apply(mixed $source, mixed $value, array $arguments, ResolveInfo $resolveInfo): mixed
     {
         if (empty($arguments)) {
             return $value;
@@ -79,7 +76,7 @@ class Transform extends Directive
 
         if ($value instanceof Asset) {
             $value->setTransform($transform);
-        } elseif (is_array($value)) {
+        } elseif ($value instanceof Collection) {
             foreach ($value as $asset) {
                 // If this somehow ended up being a mix of elements, don't explicitly fail, just set the transform on the asset elements
                 if ($asset instanceof Asset) {
@@ -88,6 +85,8 @@ class Transform extends Directive
             }
         } elseif ($source instanceof Asset) {
             switch ($resolveInfo->fieldName) {
+                case 'format':
+                    return $source->getFormat($transform);
                 case 'height':
                     return $source->getHeight($transform);
                 case 'mimeType':

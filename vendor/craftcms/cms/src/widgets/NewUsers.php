@@ -43,7 +43,7 @@ class NewUsers extends Widget
     /**
      * @inheritdoc
      */
-    public static function icon()
+    public static function icon(): ?string
     {
         return Craft::getAlias('@appicons/users.svg');
     }
@@ -51,18 +51,17 @@ class NewUsers extends Widget
     /**
      * @var int|null The ID of the user group
      */
-    public $userGroupId;
+    public ?int $userGroupId = null;
 
     /**
      * @var string|null The date range
      */
-    public $dateRange;
-
+    public ?string $dateRange = null;
 
     /**
      * @inheritdoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         if ($groupId = $this->userGroupId) {
             $userGroup = Craft::$app->getUserGroups()->getGroupById($groupId);
@@ -82,10 +81,10 @@ class NewUsers extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         if (Craft::$app->getEdition() !== Craft::Pro) {
-            return false;
+            return null;
         }
 
         $options = $this->getSettings();
@@ -101,9 +100,9 @@ class NewUsers extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml()
+    public function getSettingsHtml(): ?string
     {
-        return Craft::$app->getView()->renderTemplate('_components/widgets/NewUsers/settings',
+        return Craft::$app->getView()->renderTemplate('_components/widgets/NewUsers/settings.twig',
             [
                 'widget' => $this,
             ]);

@@ -3,6 +3,15 @@
 $vendorDir = dirname(__DIR__);
 
 return array (
+  'yiisoft/yii2-symfonymailer' => 
+  array (
+    'name' => 'yiisoft/yii2-symfonymailer',
+    'version' => '2.0.4.0',
+    'alias' => 
+    array (
+      '@yii/symfonymailer' => $vendorDir . '/yiisoft/yii2-symfonymailer/src',
+    ),
+  ),
   'yiisoft/yii2-queue' => 
   array (
     'name' => 'yiisoft/yii2-queue',
@@ -25,19 +34,20 @@ return array (
   'yiisoft/yii2-debug' => 
   array (
     'name' => 'yiisoft/yii2-debug',
-    'version' => '2.1.24.0',
+    'version' => '2.1.22.0',
     'alias' => 
     array (
       '@yii/debug' => $vendorDir . '/yiisoft/yii2-debug/src',
     ),
   ),
-  'yiisoft/yii2-swiftmailer' => 
+  'samdark/yii2-psr-log-target' => 
   array (
-    'name' => 'yiisoft/yii2-swiftmailer',
-    'version' => '2.1.3.0',
+    'name' => 'samdark/yii2-psr-log-target',
+    'version' => '1.1.3.0',
     'alias' => 
     array (
-      '@yii/swiftmailer' => $vendorDir . '/yiisoft/yii2-swiftmailer/src',
+      '@samdark/log' => $vendorDir . '/samdark/yii2-psr-log-target/src',
+      '@samdark/log/tests' => $vendorDir . '/samdark/yii2-psr-log-target/tests',
     ),
   ),
   'creocoder/yii2-nested-sets' => 
@@ -48,6 +58,16 @@ return array (
     array (
       '@creocoder/nestedsets' => $vendorDir . '/creocoder/yii2-nested-sets/src',
     ),
+  ),
+  'craftcms/generator' => 
+  array (
+    'name' => 'craftcms/generator',
+    'version' => '1.6.1.0',
+    'alias' => 
+    array (
+      '@craft/generator' => $vendorDir . '/craftcms/generator/src',
+    ),
+    'bootstrap' => 'craft\\generator\\Extension',
   ),
   'yiisoft/yii2-shell' => 
   array (

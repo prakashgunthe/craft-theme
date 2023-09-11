@@ -14,7 +14,7 @@ use craft\helpers\StringHelper;
  * SafeLinkTrait
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.8.2
+ * @since 4.4.2
  */
 trait SafeLinkTrait
 {

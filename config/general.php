@@ -8,41 +8,26 @@
  * @see \craft\config\GeneralConfig
  */
 
-return [
-    // Global settings
-    '*' => [
-        // Default Week Start Day (0 = Sunday, 1 = Monday...)
-        'defaultWeekStartDay' => 1,
+use craft\config\GeneralConfig;
+use craft\helpers\App;
 
-        // Whether generated URLs should omit "index.php"
-        'omitScriptNameInUrls' => true,
-
-        // Control Panel trigger word
-        'cpTrigger' => 'admin',
-
-        // The secure key Craft will use for hashing and encrypting data
-        'securityKey' => getenv('SECURITY_KEY'),
-
-        // Whether to save the project config out to config/project.yaml
-        // (see https://docs.craftcms.com/v3/project-config.html)
-        'useProjectConfigFile' => false,
-
-        // https://docs.craftcms.com/api/v3/craft-config-generalconfig.html#errortemplateprefix
-        'errorTemplatePrefix' => '_',
-
-        // https://docs.craftcms.com/api/v3/craft-config-generalconfig.html#devmode
-        'devMode' => true,
-        'baseUrl' => 'http://craft362.local/',
-        'siteUrl' => 'http://craft362.local/',
-        'theme' => [
-             'color' => '#000000'
-            // 'gtm_id' => '',
-        ],
-        
-    ],
-    [
-    'environmentVariables' => [
-            'baseUrl' => 'http://craft362.local/',
-        ],
-    ]
-];
+return GeneralConfig::create()
+    // Set the default week start day for date pickers (0 = Sunday, 1 = Monday, etc.)
+    ->defaultWeekStartDay(1)
+    // Prevent generated URLs from including "index.php"
+    ->omitScriptNameInUrls()
+    // Enable Dev Mode (see https://craftcms.com/guides/what-dev-mode-does)
+    ->devMode(App::env('DEV_MODE') ?? false)
+    // Preload Single entries as Twig variables
+    ->preloadSingles()
+    // Allow administrative changes
+    ->allowAdminChanges(App::env('ALLOW_ADMIN_CHANGES') ?? false)
+    // Disallow robots
+    ->disallowRobots(App::env('DISALLOW_ROBOTS') ?? false)
+    // Prevent user enumeration attacks
+    ->preventUserEnumeration()
+    // Set the @webroot alias so the clear-caches command knows where to find CP resources
+    ->aliases([
+        '@webroot' => dirname(__DIR__) . '/web',
+    ])
+;

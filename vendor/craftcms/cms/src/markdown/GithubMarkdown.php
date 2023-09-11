@@ -14,7 +14,7 @@ use cebe\markdown\GithubMarkdown as BaseGithubMarkdown;
  * Markdown parser
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.8.2
+ * @since 4.4.2
  */
 class GithubMarkdown extends BaseGithubMarkdown
 {

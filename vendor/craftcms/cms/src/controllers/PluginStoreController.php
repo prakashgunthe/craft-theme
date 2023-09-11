@@ -8,12 +8,15 @@
 namespace craft\controllers;
 
 use Craft;
+use craft\errors\InvalidLicenseKeyException;
+use craft\errors\InvalidPluginException;
 use craft\helpers\App;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\web\assets\pluginstore\PluginStoreAsset;
 use craft\web\Controller;
 use craft\web\View;
+use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;
 
@@ -30,12 +33,16 @@ class PluginStoreController extends Controller
     /**
      * @inheritdoc
      */
-    public function beforeAction($action)
+    public function beforeAction($action): bool
     {
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+
         // All plugin store actions require an admin
         $this->requireAdmin(false);
 
-        return parent::beforeAction($action);
+        return true;
     }
 
     /**
@@ -43,7 +50,7 @@ class PluginStoreController extends Controller
      *
      * @return Response
      * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function actionIndex(): Response
     {
@@ -64,15 +71,15 @@ class PluginStoreController extends Controller
             'composerPhpVersion' => Craft::$app->getComposer()->getConfig()['config']['platform']['php'] ?? null,
         ];
 
-        $view->registerJsWithVars(function($variables) {
-            return <<<JS
-Object.assign(window, $variables);
-JS;
-        }, [$variables], View::POS_BEGIN);
+        $view->registerJsWithVars(
+            fn($variables) => "Object.assign(window, $variables)",
+            [$variables],
+            View::POS_BEGIN
+        );
 
         $view->registerAssetBundle(PluginStoreAsset::class);
 
-        return $this->renderTemplate('plugin-store/_index');
+        return $this->renderTemplate('plugin-store/_index.twig');
     }
 
     /**
@@ -88,7 +95,7 @@ JS;
         $data = [];
 
         // Current user
-        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUser = static::currentUser();
         $data['currentUser'] = $currentUser->getAttributes(['email']);
 
         // Craft license/edition info
@@ -100,9 +107,6 @@ JS;
 
         // Logos
         $data['craftLogo'] = Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/pluginstore/dist/', true, 'images/craft.svg');
-        $data['poweredByStripe'] = Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/pluginstore/dist/', true, 'images/powered_by_stripe.svg');
-        $data['defaultPluginSvg'] = Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/pluginstore/dist/', true, 'images/default-plugin.svg');
-        $data['alertIcon'] = Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/pluginstore/dist/', true, 'images/alert.svg');
 
         return $this->asJson($data);
     }
@@ -111,13 +115,13 @@ JS;
      * Save plugin license keys.
      *
      * @return Response
-     * @throws \craft\errors\InvalidLicenseKeyException
-     * @throws \craft\errors\InvalidPluginException
+     * @throws InvalidLicenseKeyException
+     * @throws InvalidPluginException
      */
-    public function actionSavePluginLicenseKeys()
+    public function actionSavePluginLicenseKeys(): Response
     {
         $payload = Json::decode($this->request->getRawBody(), true);
-        $pluginLicenseKeys = (isset($payload['pluginLicenseKeys']) ? $payload['pluginLicenseKeys'] : []);
+        $pluginLicenseKeys = ($payload['pluginLicenseKeys'] ?? []);
         $plugins = Craft::$app->getPlugins()->getAllPlugins();
 
         foreach ($pluginLicenseKeys as $pluginLicenseKey) {
@@ -126,7 +130,7 @@ JS;
             }
         }
 
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
@@ -136,7 +140,8 @@ JS;
      */
     private function _getVueAppBaseUrl(): string
     {
-        return UrlHelper::rootRelativeUrl(UrlHelper::url('plugin-store'));
+        $url = UrlHelper::rootRelativeUrl(UrlHelper::url('plugin-store'));
+        return UrlHelper::removeParam($url, 'site');
     }
 
     /**
@@ -144,7 +149,7 @@ JS;
      *
      * @return string|null
      */
-    private function getCraftIdAccessToken()
+    private function getCraftIdAccessToken(): ?string
     {
         $craftIdAccessToken = null;
         $pluginStoreService = Craft::$app->getPluginStore();

@@ -41,7 +41,7 @@ class Element extends ObjectType
     /**
      * @inheritdoc
      */
-    protected function resolve($source, $arguments, $context, ResolveInfo $resolveInfo)
+    protected function resolve(mixed $source, array $arguments, mixed $context, ResolveInfo $resolveInfo): mixed
     {
         /** @var BaseElementInterface $source */
         $fieldName = $resolveInfo->fieldName;
@@ -56,6 +56,10 @@ class Element extends ObjectType
             $argumentManager = $context['argumentManager'] ?? Craft::createObject(['class' => ArgumentManager::class]);
             $arguments = $argumentManager->prepareArguments($arguments);
             return $source->{'get' . ucfirst($fieldName)}(empty($arguments) ? false : $arguments);
+        }
+
+        if ($fieldName === 'siteHandle') {
+            return $source->getSite()->handle;
         }
 
         if ($fieldName === 'revisionNotes') {
