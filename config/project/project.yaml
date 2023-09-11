@@ -1,13 +1,44 @@
-dateModified: 1692944707
+dateModified: 1694417676
+elementSources:
+  craft\elements\Entry:
+    -
+      key: '*'
+      type: native
+    -
+      defaultSort:
+        - title
+        - asc
+      disabled: true
+      key: singles
+      tableAttributes:
+        - link
+        - type
+        - postDate
+        - expiryDate
+        - 'field:c0eac6e0-b9c1-4794-b000-cfc52e41e069' # Post Id
+        - 'field:7b6b1a6e-255c-4aa0-b585-d53ac8b89e38' # Post Name
+        - 'field:c0c525e9-b10a-4adb-9ad6-188f5c1e0123' # Post Description
+      type: native
 email:
   fromEmail: prakash.gunthe@gmail.com
   fromName: craf440
   transportType: craft\mail\transportadapters\Sendmail
 meta:
   __names__:
+    7b6b1a6e-255c-4aa0-b585-d53ac8b89e38: 'Post Name' # Post Name
     36e62643-3f9f-4de5-ac3c-dbdccb484338: Common # Common
+    213c8386-39fb-4fac-b3f7-beef68e16bde: Post # Post
+    409416f8-7c5e-48ec-84e4-17e8dc02876a: Posts # Posts
+    c0c525e9-b10a-4adb-9ad6-188f5c1e0123: 'Post Description' # Post Description
+    c0eac6e0-b9c1-4794-b000-cfc52e41e069: 'Post Id' # Post Id
+    e3fad1c9-78f0-4b0c-aca5-ac8036c5f0ae: Default # Default
     e8c5867c-4776-4a60-bc88-8196c4660f8e: craf440 # craf440
     ea2373df-98be-423b-91cb-d66751090f2f: craf440 # craf440
+plugins:
+  element-api:
+    edition: standard
+    enabled: true
+    schemaVersion: 1.0.0
 system:
   edition: solo
   live: true
