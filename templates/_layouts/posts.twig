@@ -1,0 +1,5 @@
+{# Fetch entries as arrays #}
+{% set entries = craft.entries()
+    .asArray()
+    .all() | json_encode() %}
+{{ entries }}  
