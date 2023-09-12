@@ -20,4 +20,20 @@ return array (
     'developerUrl' => 'https://pixelandtonic.com/',
     'documentationUrl' => 'https://github.com/craftcms/element-api/blob/v2/README.md',
   ),
+  'craftcms/webhooks' => 
+  array (
+    'class' => 'craft\\webhooks\\Plugin',
+    'basePath' => $vendorDir . '/craftcms/webhooks/src',
+    'handle' => 'webhooks',
+    'aliases' => 
+    array (
+      '@craft/webhooks' => $vendorDir . '/craftcms/webhooks/src',
+    ),
+    'name' => 'Webhooks',
+    'version' => '3.0.4',
+    'description' => 'Post webhooks when events are triggered in Craft CMS.',
+    'developer' => 'Pixel & Tonic',
+    'developerUrl' => 'https://pixelandtonic.com/',
+    'documentationUrl' => 'https://github.com/craftcms/webhooks/blob/master/README.md',
+  ),
 );

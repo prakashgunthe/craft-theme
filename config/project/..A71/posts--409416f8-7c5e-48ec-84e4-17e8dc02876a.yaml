@@ -1,0 +1,12 @@
+defaultPlacement: end
+enableVersioning: true
+handle: posts
+name: Posts
+propagationMethod: all
+siteSettings:
+  e8c5867c-4776-4a60-bc88-8196c4660f8e: # craf440
+    enabledByDefault: true
+    hasUrls: true
+    template: posts/_entry
+    uriFormat: 'posts/{slug}'
+type: channel
